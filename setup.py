@@ -11,7 +11,7 @@ setup(
     entry_points = {
         'console_scripts': ['qtile-contextmenu=qtilecontextmenu.contextmenu:main'],
     },
-    install_reuires=[
-        'gtk3'                                                                                                                                                     
+    install_requires=[
+        'qtile'
     ],
 )
