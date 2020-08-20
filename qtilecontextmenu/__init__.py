@@ -10,7 +10,10 @@ except Exception as e:
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gio, Gtk, Gdk
 
-from libqtile.command import Client
+#from libqtile.command import Client
+from libqtile.command_interface import CommandInterface, IPCCommandInterface
+from libqtile.command_client import CommandClient
+from libqtile.ipc import Client, find_sockfile
 
 class ContextMenuApp(Gtk.Application):
 
@@ -24,7 +27,8 @@ class ContextMenuApp(Gtk.Application):
     @property
     def qtile(self):
         if self._qtile is None:
-            self._qtile = Client()
+#            self._qtile = Client()
+            self._qtile = CommandClient(command=IPCCommandInterface(Client(find_sockfile())))
 
         return self._qtile
 
@@ -395,19 +399,22 @@ class ContextMenuApp(Gtk.Application):
             args = None
 
         if key is not None:
-            mod = getattr(self.qtile, key)
+            mod = self.qtile.call(key)()
         else:
             mod = self.qtile
 
         try:
+            print(mod.call('commands')())
+
             if args is not None:
-                ret = getattr(mod, command)(args)
+                ret = mod.call(command)(args)
             else:
-                ret = getattr(mod, command)()
+                ret = mod.call(command)()
 
             if ret is not None:
                 return ret
         except Exception as e:
+            print('error:')
             print(e)
 
     def cmd_qtile_window_move(self, item, kwargs=None):
