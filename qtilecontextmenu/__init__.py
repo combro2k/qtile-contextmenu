@@ -15,6 +15,8 @@ from libqtile.command_interface import CommandInterface, IPCCommandInterface
 from libqtile.command_client import CommandClient
 from libqtile.ipc import Client, find_sockfile
 
+from pprint import pprint
+
 class ContextMenuApp(Gtk.Application):
 
     _qtile = None
@@ -27,7 +29,6 @@ class ContextMenuApp(Gtk.Application):
     @property
     def qtile(self):
         if self._qtile is None:
-#            self._qtile = Client()
             self._qtile = CommandClient(command=IPCCommandInterface(Client(find_sockfile())))
 
         return self._qtile
@@ -47,8 +48,8 @@ class ContextMenuApp(Gtk.Application):
 
     def _configure(self):
         try:
-            currentWindow = self.qtile.window.info()
-        except:
+            currentWindow = self.qtile.navigate('window', None).call('info')()
+        except Exception as e:
             currentWindow = None
 
         try:
@@ -399,7 +400,7 @@ class ContextMenuApp(Gtk.Application):
             args = None
 
         if key is not None:
-            mod = self.qtile.call(key)()
+            mod = self.qtile.navigate(key, None)
         else:
             mod = self.qtile
 
